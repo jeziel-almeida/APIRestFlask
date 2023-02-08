@@ -13,6 +13,12 @@ database = TinyDB('database.json')
 c = count()
 
 
+class QueryPessoa(BaseModel):
+    id: Optional[int]
+    nome: Optional[str]
+    idade: Optional[int]
+
+
 class Pessoa(BaseModel):
     id: Optional[int] = Field(default_factory=lambda: next(c))
     nome: str
@@ -25,12 +31,26 @@ class Pessoas(BaseModel):
 
 
 @server.get('/pessoas')
-@spec.validate(resp=Response(HTTP_200=Pessoas))
+@spec.validate(query=QueryPessoa, resp=Response(HTTP_200=Pessoas))
 def buscar_pessoas():
     """Retorna todas as pessoas do banco de dados."""
+    query = request.context.query.dict(exclude_none=True)
+    todas_as_pessoas = database.search(Query().fragment(query))
     return jsonify(
-        Pessoas(pessoas=database.all(), count=len(database.all())).dict()
+        Pessoas(pessoas=todas_as_pessoas, count=len(todas_as_pessoas)).dict()
     )
+
+
+@server.get('/pessoas/<int:id>')
+@spec.validate(resp=Response(HTTP_200=Pessoa))
+def buscar_pessoa(id):
+    """Retorna uma pessoa do banco de dados."""
+    try:
+        pessoa = database.search(Query().id == id)[0]
+    except IndexError:
+        return {'message': 'Pessoa not found!'}, 404
+
+    return jsonify(pessoa)
 
 
 @server.post('/pessoas')
