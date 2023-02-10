@@ -1,10 +1,10 @@
 from itertools import count
 from typing import Optional
-from tinydb import Query, TinyDB
-from flask_pydantic_spec import FlaskPydanticSpec, Request, Response
-from flask import Flask, jsonify, request
-from pydantic import BaseModel, Field
 
+from flask import Flask, jsonify, request
+from flask_pydantic_spec import FlaskPydanticSpec, Request, Response
+from pydantic import BaseModel, Field
+from tinydb import Query, TinyDB
 
 server = Flask(__name__)
 spec = FlaskPydanticSpec('flask', title='Live de Python')
