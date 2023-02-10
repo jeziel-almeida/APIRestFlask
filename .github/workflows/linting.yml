@@ -1,43 +1,41 @@
 name: Continuous Integration
+run-name: ${{ github.actor }} testing format action
 on: [push]
 jobs:
-  just_linting:
+  format:
     runs-on: ubuntu-latest
     steps:
+     - name: Setup Python
+       uses: actions/setup-python@v2
+       with:
+         python-version: '3.10'
 
-      - name: Set up python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.10'
-
-      - name: Check out repository
-        uses: actions/checkout@v3
-	with:
-	  token: ${{ secrets.PAT }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-in-project: true
-
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v2
-        with:
-          path: .venv
-          key: venv-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction
-
-      - name: Format
-        run: poetry run make format
-
-      - name: Git Auto Commit Action
-        uses: stefanzweifel/git-auto-commit-action@v4
-	with:
-	  commit_message: File formatted
-
-      - name: Status do Job
-        run: echo "Status do job -> ${{ job.status }}."
+     - name: Checkout repository
+       uses: actions/checkout@v3
+       with:
+         token: ${{ secrets.PAT }}
+	 
+     - name: Install Poetry
+       uses: snok/install-poetry@v1
+       with:
+         virtualenvs-in-project: true
+	 
+     - name: Load cached venv
+       id: cached-poetry-dependencies
+       uses: actions/cache@v2
+       with:
+         path: .venv
+         key: venv-${{ hashFiles('**/poetry.lock') }}
+	 
+     - name: Install dependencies
+       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+       run: poetry install --no-interaction
+       
+     - name: Format
+       run: poetry run make format
+       
+     - name: Git Auto Commit Action
+       uses: stefanzweifel/git-auto-commit-action@v4
+       with:
+         commit_message: File formatted
+	
